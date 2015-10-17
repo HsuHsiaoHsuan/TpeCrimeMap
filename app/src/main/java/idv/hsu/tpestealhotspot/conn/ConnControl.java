@@ -58,6 +58,4 @@ public class ConnControl {
     public ImageLoader getmImageLoader() {
         return mImageLoader;
     }
-
-
 }

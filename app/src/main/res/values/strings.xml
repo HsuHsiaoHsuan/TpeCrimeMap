@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">TPE Steal Hotspot</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+
+    <string name="house">House</string>
+    <string name="car">Car</string>
+    <string name="bike">Bike</string>
+
+</resources>

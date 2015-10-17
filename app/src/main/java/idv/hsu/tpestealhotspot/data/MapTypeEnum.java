@@ -1,7 +1,17 @@
 package idv.hsu.tpestealhotspot.data;
 
-/**
- * Created by freeman on 2015/10/18.
- */
-public class MapTypeEnum {
+public enum MapTypeEnum {
+    TYPE_HOUSE(0),
+    TYPE_CAR(1),
+    TYPE_BIKE(2);
+
+    private final int value;
+
+    MapTypeEnum(int value) {
+        this.value = value;
+    }
+
+    public int getValue() {
+        return value;
+    }
 }
