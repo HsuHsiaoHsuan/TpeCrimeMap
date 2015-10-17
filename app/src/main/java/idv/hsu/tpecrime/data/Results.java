@@ -1,4 +1,4 @@
-package idv.hsu.tpestealhotspot.data;
+package idv.hsu.tpecrime.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

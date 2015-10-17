@@ -1,4 +1,4 @@
-package idv.hsu.tpestealhotspot.task;
+package idv.hsu.tpecrime.task;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;
@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
-import idv.hsu.tpestealhotspot.data.Results;
+import idv.hsu.tpecrime.data.Results;
 
 public class AsyncTask_getLatLng extends AsyncTaskLoader<Void> {
     private static final String TAG = AsyncTask_getLatLng.class.getSimpleName();

@@ -1,12 +1,12 @@
-package idv.hsu.tpestealhotspot.event;
+package idv.hsu.tpecrime.event;
 
-import idv.hsu.tpestealhotspot.data.Response;
+import idv.hsu.tpecrime.data.Response;
 
-public class Event_Map {
+public class Event_List {
     private Response response;
     private int type;
 
-    public Event_Map(Response res, int type) {
+    public Event_List(Response res, int type) {
         this.response = res;
         this.type = type;
     }

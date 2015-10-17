@@ -1,4 +1,4 @@
-package idv.hsu.tpestealhotspot.ui;
+package idv.hsu.tpecrime.ui;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -15,10 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 import de.greenrobot.event.EventBus;
-import idv.hsu.tpestealhotspot.MainActivity;
-import idv.hsu.tpestealhotspot.data.Results;
-import idv.hsu.tpestealhotspot.event.Event_Map;
-import idv.hsu.tpestealhotspot.task.AsyncTask_getLatLng;
+import idv.hsu.tpecrime.data.Results;
+import idv.hsu.tpecrime.event.Event_Map;
+import idv.hsu.tpecrime.task.AsyncTask_getLatLng;
 
 public class FragmentMap extends SupportMapFragment implements OnMapReadyCallback {
     private static final String TAG = FragmentMap.class.getSimpleName();
@@ -31,7 +30,7 @@ public class FragmentMap extends SupportMapFragment implements OnMapReadyCallbac
     private List<Results> listData;
     private Map<String, LatLng> address;
 
-    private OnFragmentInteractionListener mListener;
+    private IOnFragmentInteractionListener mListener;
 
     public static FragmentMap newInstance(String rid, int type) {
         FragmentMap fragment = new FragmentMap();
@@ -82,7 +81,7 @@ public class FragmentMap extends SupportMapFragment implements OnMapReadyCallbac
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            mListener = (OnFragmentInteractionListener) activity;
+            mListener = (IOnFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -98,10 +97,6 @@ public class FragmentMap extends SupportMapFragment implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-    }
-
-    public interface OnFragmentInteractionListener {
-        public void onFragmentInteraction(String url, int type);
     }
 
     public void onEvent(Event_Map event) {

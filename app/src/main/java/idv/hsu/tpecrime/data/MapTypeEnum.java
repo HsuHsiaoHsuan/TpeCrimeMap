@@ -1,4 +1,4 @@
-package idv.hsu.tpestealhotspot.data;
+package idv.hsu.tpecrime.data;
 
 public enum MapTypeEnum {
     TYPE_HOUSE(0),

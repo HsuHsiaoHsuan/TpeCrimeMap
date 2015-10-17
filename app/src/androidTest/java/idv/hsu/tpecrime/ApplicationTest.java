@@ -1,4 +1,4 @@
-package idv.hsu.tpestealhotspot;
+package idv.hsu.tpecrime;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

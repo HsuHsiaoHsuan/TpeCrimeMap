@@ -1,11 +1,10 @@
-package idv.hsu.tpestealhotspot;
+package idv.hsu.tpecrime;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -16,7 +15,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -37,12 +35,13 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 import de.greenrobot.event.EventBus;
-import idv.hsu.tpestealhotspot.conn.ConnControl;
-import idv.hsu.tpestealhotspot.data.MapTypeEnum;
-import idv.hsu.tpestealhotspot.event.Event_Map;
-import idv.hsu.tpestealhotspot.ui.FragmentMap;
+import idv.hsu.tpecrime.conn.ConnControl;
+import idv.hsu.tpecrime.data.MapTypeEnum;
+import idv.hsu.tpecrime.event.Event_List;
+import idv.hsu.tpecrime.ui.FragmentList;
+import idv.hsu.tpecrime.ui.IOnFragmentInteractionListener;
 
-public class MainActivity extends AppCompatActivity implements FragmentMap.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements IOnFragmentInteractionListener {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final boolean D = true;
 
@@ -52,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements FragmentMap.OnFra
             "http://data.taipei/opendata/datalist/apiAccess?scope=resourceAquire&rid=999daf96-ef99-42e9-94ac-9095f77203b8";
     private static final String RID_BIKE =
             "http://data.taipei/opendata/datalist/apiAccess?scope=resourceAquire&rid=47c6fdfa-8849-4f73-badd-689d577ccb7e";
+    private static final String RID_WOMEN_CHILD =
+            "http://data.taipei/opendata/datalist/apiAccess?scope=resourceAquire&rid=efe5c923-fa09-4d55-896e-877c553f04e0";
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private static RequestQueue queue;
@@ -76,6 +77,9 @@ public class MainActivity extends AppCompatActivity implements FragmentMap.OnFra
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        int navBarHeight = getNavigationBarHeight();
+        findViewById(R.id.container).setPadding(0, 0, 0, navBarHeight);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -87,14 +91,14 @@ public class MainActivity extends AppCompatActivity implements FragmentMap.OnFra
         TabLayout mTabLayout = (TabLayout) findViewById(R.id.tabs);
         mTabLayout.setupWithViewPager(mViewPager);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
 
         queue = ConnControl.getInstance(this).getRequestQueue();
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
@@ -130,10 +134,10 @@ public class MainActivity extends AppCompatActivity implements FragmentMap.OnFra
                         JsonParser parser = null;
                         try {
                             parser = factory.createParser(response.toString());
-                            idv.hsu.tpestealhotspot.data.Response data =
-                                    mapper.readValue(parser, idv.hsu.tpestealhotspot.data.Response.class);
+                            idv.hsu.tpecrime.data.Response data =
+                                    mapper.readValue(parser, idv.hsu.tpecrime.data.Response.class);
 
-                            EventBus.getDefault().post(new Event_Map(data, type));
+                            EventBus.getDefault().post(new Event_List(data, type));
                         } catch (IOException e) {
                             e.printStackTrace();
                         } catch (Exception e) {
@@ -170,11 +174,11 @@ public class MainActivity extends AppCompatActivity implements FragmentMap.OnFra
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return FragmentMap.newInstance(RID_HOUSE, MapTypeEnum.TYPE_HOUSE.getValue());
+                    return FragmentList.newInstance(RID_HOUSE, MapTypeEnum.TYPE_HOUSE.getValue());
                 case 1:
-                    return FragmentMap.newInstance(RID_CAR, MapTypeEnum.TYPE_CAR.getValue());
+                    return FragmentList.newInstance(RID_CAR, MapTypeEnum.TYPE_CAR.getValue());
                 case 2:
-                    return FragmentMap.newInstance(RID_BIKE, MapTypeEnum.TYPE_BIKE.getValue());
+                    return FragmentList.newInstance(RID_BIKE, MapTypeEnum.TYPE_BIKE.getValue());
             }
             return null;
         }
@@ -227,5 +231,14 @@ public class MainActivity extends AppCompatActivity implements FragmentMap.OnFra
                         DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         queue.add(request);
+    }
+
+    private int getNavigationBarHeight() {
+        Resources resources = getResources();
+        int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            return resources.getDimensionPixelSize(resourceId);
+        }
+        return 0;
     }
 }
