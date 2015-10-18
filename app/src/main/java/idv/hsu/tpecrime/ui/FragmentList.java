@@ -21,7 +21,7 @@ import idv.hsu.tpecrime.event.Event_Refresh;
 
 public class FragmentList extends ListFragment {
     private static final String TAG = FragmentList.class.getSimpleName();
-    private static final boolean D = true;
+    private static final boolean D = false;
 
     private static final String PARAM_RID = "RID";
     private static final String PARAM_TYPE = "TYPE";

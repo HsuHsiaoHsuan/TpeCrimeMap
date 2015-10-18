@@ -59,7 +59,7 @@ import idv.hsu.tpecrime.ui.IOnFragmentInteractionListener;
 
 public class MainActivity extends AppCompatActivity implements IOnFragmentInteractionListener {
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static final boolean D = true;
+    private static final boolean D = false;
 
     private static final String RID_HOUSE =
             "http://data.taipei/opendata/datalist/apiAccess?scope=resourceAquire&rid=876a83ac-c27a-457f-8d00-25751373a93c";

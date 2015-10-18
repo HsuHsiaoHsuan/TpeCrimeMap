@@ -11,7 +11,7 @@ import com.android.volley.toolbox.Volley;
 
 public class ConnControl {
     private static final String TAG = ConnControl.class.getSimpleName();
-    private static final boolean D = true;
+    private static final boolean D = false;
 
     private static ConnControl mInstance;
     private RequestQueue mRequestQueue;
