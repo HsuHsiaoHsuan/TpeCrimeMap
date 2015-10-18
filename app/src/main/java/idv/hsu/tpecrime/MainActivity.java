@@ -5,6 +5,8 @@ import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -15,6 +17,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -27,6 +30,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.android.gms.maps.SupportMapFragment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -60,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements IOnFragmentIntera
     final ObjectMapper mapper = new ObjectMapper();
 
     private ViewPager mViewPager;
+    private SupportMapFragment mapFragment;
 
     private boolean idDeviceOnline() {
         ConnectivityManager connMgr = (ConnectivityManager)
@@ -91,18 +96,24 @@ public class MainActivity extends AppCompatActivity implements IOnFragmentIntera
         TabLayout mTabLayout = (TabLayout) findViewById(R.id.tabs);
         mTabLayout.setupWithViewPager(mViewPager);
 
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
-
         queue = ConnControl.getInstance(this).getRequestQueue();
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        findViewById(R.id.map).setVisibility(View.INVISIBLE);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setVisibility(View.INVISIBLE);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+                findViewById(R.id.map).setVisibility(View.INVISIBLE);
+                findViewById(R.id.fab).setVisibility(View.INVISIBLE);
+            }
+        });
     }
 
     @Override
@@ -158,6 +169,11 @@ public class MainActivity extends AppCompatActivity implements IOnFragmentIntera
         queue.add(request);
     }
 
+    @Override
+    public void showMap(String address) {
+        findViewById(R.id.map).setVisibility(View.VISIBLE);
+        findViewById(R.id.fab).setVisibility(View.VISIBLE);
+    }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
         private int[] titles = {
@@ -195,7 +211,9 @@ public class MainActivity extends AppCompatActivity implements IOnFragmentIntera
     }
 
     public static void getLatLongFromAddress(String address) {
-        Log.d(TAG, "getLatLongFromAddress:" + address);
+        if (D) {
+            Log.d(TAG, "getLatLongFromAddress:" + address);
+        }
         String url = "http://maps.google.com/maps/api/geocode/json?address=" + address + "&sensor=false";
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url,
@@ -214,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements IOnFragmentIntera
                                     .getJSONObject("geometry").getJSONObject("location")
                                     .getDouble("lat");
 
-                            Log.d(TAG, "lat: " + lat + " lng: " + lng);
+                            if (D) {Log.d(TAG, "lat: " + lat + " lng: " + lng); }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

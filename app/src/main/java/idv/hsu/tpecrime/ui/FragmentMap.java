@@ -34,10 +34,10 @@ public class FragmentMap extends SupportMapFragment implements OnMapReadyCallbac
 
     public static FragmentMap newInstance(String rid, int type) {
         FragmentMap fragment = new FragmentMap();
-        Bundle args = new Bundle();
-        args.putString(PARAM_RID, rid);
-        args.putInt(PARAM_TYPE, type);
-        fragment.setArguments(args);
+//        Bundle args = new Bundle();
+//        args.putString(PARAM_RID, rid);
+//        args.putInt(PARAM_TYPE, type);
+//        fragment.setArguments(args);
         return fragment;
     }
 
@@ -62,18 +62,18 @@ public class FragmentMap extends SupportMapFragment implements OnMapReadyCallbac
     @Override
     public void onResume() {
         super.onResume();
-        EventBus.getDefault().register(this);
+//        EventBus.getDefault().register(this);
         GoogleMap mMap = super.getMap();
 
         if (mListener != null) {
-            mListener.onFragmentInteraction(rid, type);
+//            mListener.onFragmentInteraction(rid, type);
         }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        EventBus.getDefault().unregister(this);
+//        EventBus.getDefault().unregister(this);
     }
 
 

@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,5 +110,11 @@ public class FragmentList extends ListFragment {
 //                MainActivity.getLatLongFromAddress(listData.get(x).getLocation());
 //            }
         }
+    }
+
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
+        mListener.showMap(listData.get(position).getLocation());
     }
 }
