@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">台北犯罪案件地圖</string>
+    <string name="action_refresh">重新整理</string>
+
+    <string name="house">闖空門</string>
+    <string name="car">偷車</string>
+    <string name="bike">偷腳踏車</string>
+    <string name="woman_child_injured">婦幼受害</string>
+
+    <string name="loading">載入中...</string>
+    <string name="date">日期: </string>
+    <string name="time">時間: </string>
+
+    <string name="cant_on_map">抱歉，該地點無法顯示到地圖。</string>
+
+</resources>
