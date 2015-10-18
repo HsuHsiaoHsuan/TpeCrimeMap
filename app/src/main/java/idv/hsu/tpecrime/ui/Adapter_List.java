@@ -9,15 +9,16 @@ import android.widget.TextView;
 import java.util.List;
 
 import idv.hsu.tpecrime.R;
-import idv.hsu.tpecrime.data.Results;
+import idv.hsu.tpecrime.data.IResults;
+import idv.hsu.tpecrime.data.ResultsTheft;
 
 public class Adapter_List extends BaseAdapter {
     private static final String TAG = Adapter_List.class.getSimpleName();
 
     private LayoutInflater mInflater;
-    private List<Results> listData;
+    private List<IResults> listData;
 
-    public Adapter_List(LayoutInflater inflater, List<Results> data) {
+    public Adapter_List(LayoutInflater inflater, List<IResults> data) {
         mInflater = inflater;
         listData = data;
     }

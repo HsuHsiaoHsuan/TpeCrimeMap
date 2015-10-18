@@ -2,15 +2,15 @@ package idv.hsu.tpecrime.data;
 
 import java.util.List;
 
-public class Result {
-    public Result() {
+public class ResultWomanChildInjured implements IResult {
+    public ResultWomanChildInjured() {
     }
 
     private String offset;
     private int limit;
     private int count;
     private String sort;
-    private List<Results> results;
+    private List<ResultsWomanChildInjured> results;
 
     public String getOffset() {
         return offset;
@@ -44,11 +44,11 @@ public class Result {
         this.sort = sort;
     }
 
-    public List<Results> getResults() {
+    public List getResults() {
         return results;
     }
 
-    public void setResults(List<Results> results) {
+    public void setResults(List<ResultsWomanChildInjured> results) {
         this.results = results;
     }
 }

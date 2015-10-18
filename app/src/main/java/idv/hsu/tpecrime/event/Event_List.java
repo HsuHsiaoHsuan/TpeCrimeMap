@@ -1,17 +1,17 @@
 package idv.hsu.tpecrime.event;
 
-import idv.hsu.tpecrime.data.Response;
+import idv.hsu.tpecrime.data.IResponse;
 
 public class Event_List {
-    private Response response;
+    private IResponse response;
     private int type;
 
-    public Event_List(Response res, int type) {
+    public Event_List(IResponse res, int type) {
         this.response = res;
         this.type = type;
     }
 
-    public Response getData() {
+    public IResponse getData() {
         return response;
     }
 

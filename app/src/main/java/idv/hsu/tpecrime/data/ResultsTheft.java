@@ -2,8 +2,8 @@ package idv.hsu.tpecrime.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Results {
-    public Results() {
+public class ResultsTheft implements IResults{
+    public ResultsTheft() {
     }
 
     private String _id;

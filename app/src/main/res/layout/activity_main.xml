@@ -28,7 +28,9 @@
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"/>
+            android:background="@color/colorPrimary"
+            app:tabGravity="fill"
+            app:tabMode="scrollable"/>
 
     </android.support.design.widget.AppBarLayout>
 
@@ -40,9 +42,10 @@
 
     <fragment
         android:id="@+id/map"
-        android:name="idv.hsu.tpecrime.ui.FragmentMap"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+    <!--android:name="idv.hsu.tpecrime.ui.FragmentMap"-->
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -50,6 +53,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:layout_margin="@dimen/fab_margin"
-        android:src="@android:drawable/ic_dialog_email" />
+        android:src="@android:drawable/ic_menu_close_clear_cancel" />
 
 </android.support.design.widget.CoordinatorLayout>

@@ -1,10 +1,16 @@
 <resources>
     <string name="app_name">TPE Crime Map</string>
-    <string name="action_settings">Settings</string>
-    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="action_refresh">Refresh</string>
 
-    <string name="house">House</string>
-    <string name="car">Car</string>
-    <string name="bike">Bike</string>
+    <string name="house">Break in</string>
+    <string name="car">Car theft</string>
+    <string name="bike">Bike theft</string>
+    <string name="woman_child_injured">Woman\/child injured</string>
+
+    <string name="loading">Loading...</string>
+    <string name="date">Date: </string>
+    <string name="time">Time: </string>
+    
+    <string name="cant_on_map">Can\'t convert this address on Google Map.</string>
 
 </resources>

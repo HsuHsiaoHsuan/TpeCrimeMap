@@ -2,11 +2,12 @@ package idv.hsu.tpecrime;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -18,11 +19,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AnimationUtils;
+import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -30,18 +32,28 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 import de.greenrobot.event.EventBus;
 import idv.hsu.tpecrime.conn.ConnControl;
-import idv.hsu.tpecrime.data.MapTypeEnum;
+import idv.hsu.tpecrime.data.CrimeTypeEnum;
+import idv.hsu.tpecrime.data.IResponse;
+import idv.hsu.tpecrime.data.ResponseTheft;
+import idv.hsu.tpecrime.data.ResponseWomanChildInjured;
+import idv.hsu.tpecrime.event.Event_Address;
 import idv.hsu.tpecrime.event.Event_List;
+import idv.hsu.tpecrime.event.Event_Refresh;
 import idv.hsu.tpecrime.ui.FragmentList;
 import idv.hsu.tpecrime.ui.IOnFragmentInteractionListener;
 
@@ -64,7 +76,9 @@ public class MainActivity extends AppCompatActivity implements IOnFragmentIntera
     final ObjectMapper mapper = new ObjectMapper();
 
     private ViewPager mViewPager;
-    private SupportMapFragment mapFragment;
+    private View mapFragment;
+    private FloatingActionButton fab;
+    private SupportMapFragment map;
 
     private boolean idDeviceOnline() {
         ConnectivityManager connMgr = (ConnectivityManager)
@@ -100,20 +114,43 @@ public class MainActivity extends AppCompatActivity implements IOnFragmentIntera
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
-        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        findViewById(R.id.map).setVisibility(View.INVISIBLE);
+        map = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        mapFragment = findViewById(R.id.map);
+        mapFragment.setVisibility(View.INVISIBLE);
+        mapFragment.startAnimation(AnimationUtils.loadAnimation(this, R.anim.controller_slide_init));
+
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setVisibility(View.INVISIBLE);
+
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setVisibility(View.INVISIBLE);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-                findViewById(R.id.map).setVisibility(View.INVISIBLE);
-                findViewById(R.id.fab).setVisibility(View.INVISIBLE);
+                mapFragment.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.controller_slide_out));
+                mapFragment.setVisibility(View.INVISIBLE);
+                map.getMapAsync(new OnMapReadyCallback() {
+                    @Override
+                    public void onMapReady(GoogleMap googleMap) {
+                        googleMap.clear();
+                    }
+                });
+                fab.setVisibility(View.INVISIBLE);
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -127,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements IOnFragmentIntera
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
+            EventBus.getDefault().post(new Event_Refresh());
             return true;
         }
 
@@ -136,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements IOnFragmentIntera
     @Override
     public void onFragmentInteraction(String url, final int type) {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url.toString(),
-                new Response.Listener<JSONObject>() {
+                new com.android.volley.Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         if (D) {
@@ -145,9 +183,19 @@ public class MainActivity extends AppCompatActivity implements IOnFragmentIntera
                         JsonParser parser = null;
                         try {
                             parser = factory.createParser(response.toString());
-                            idv.hsu.tpecrime.data.Response data =
-                                    mapper.readValue(parser, idv.hsu.tpecrime.data.Response.class);
-
+//                            ResponseTheft data =
+//                                    mapper.readValue(parser, ResponseTheft.class);
+                            IResponse data = null;
+                            switch (type) {
+                                case 0:
+                                case 1:
+                                case 2:
+                                    data = mapper.readValue(parser, ResponseTheft.class);
+                                    break;
+                                case 3:
+                                    data = mapper.readValue(parser, ResponseWomanChildInjured.class);
+                                    break;
+                            }
                             EventBus.getDefault().post(new Event_List(data, type));
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -156,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements IOnFragmentIntera
                         }
                     }
                 },
-                new Response.ErrorListener() {
+                new com.android.volley.Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                     }
@@ -170,16 +218,37 @@ public class MainActivity extends AppCompatActivity implements IOnFragmentIntera
     }
 
     @Override
-    public void showMap(String address) {
-        findViewById(R.id.map).setVisibility(View.VISIBLE);
-        findViewById(R.id.fab).setVisibility(View.VISIBLE);
+    public void showMap(final String location) {
+        if (location != null) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
+                    List<Address> addresses = null;
+                    try {
+                        addresses = geocoder.getFromLocationName(location, 1);
+                        if (addresses.size() > 0) {
+                            Address address = addresses.get(0);
+
+                            EventBus.getDefault().post(new Event_Address(location,
+                                    new LatLng(address.getLatitude(), address.getLongitude())));
+                        } else {
+                            EventBus.getDefault().post(new Event_Address(null, null));
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
         private int[] titles = {
                 R.string.house,
                 R.string.car,
-                R.string.bike
+                R.string.bike,
+                R.string.woman_child_injured
         };
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -190,11 +259,13 @@ public class MainActivity extends AppCompatActivity implements IOnFragmentIntera
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return FragmentList.newInstance(RID_HOUSE, MapTypeEnum.TYPE_HOUSE.getValue());
+                    return FragmentList.newInstance(RID_HOUSE, CrimeTypeEnum.TYPE_HOUSE.getValue());
                 case 1:
-                    return FragmentList.newInstance(RID_CAR, MapTypeEnum.TYPE_CAR.getValue());
+                    return FragmentList.newInstance(RID_CAR, CrimeTypeEnum.TYPE_CAR.getValue());
                 case 2:
-                    return FragmentList.newInstance(RID_BIKE, MapTypeEnum.TYPE_BIKE.getValue());
+                    return FragmentList.newInstance(RID_BIKE, CrimeTypeEnum.TYPE_BIKE.getValue());
+                case 3:
+                    return FragmentList.newInstance(RID_WOMEN_CHILD, CrimeTypeEnum.TYPE_WOMAN_CHILD_INJURED.getValue());
             }
             return null;
         }
@@ -210,47 +281,6 @@ public class MainActivity extends AppCompatActivity implements IOnFragmentIntera
         }
     }
 
-    public static void getLatLongFromAddress(String address) {
-        if (D) {
-            Log.d(TAG, "getLatLongFromAddress:" + address);
-        }
-        String url = "http://maps.google.com/maps/api/geocode/json?address=" + address + "&sensor=false";
-
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        if (D) {
-                            Log.d(TAG, "onResponse: " + response);
-                        }
-
-                        try {
-                            double lng = ((JSONArray) response.get("results")).getJSONObject(0)
-                                    .getJSONObject("geometry").getJSONObject("location")
-                                    .getDouble("lng");
-                            double lat = ((JSONArray) response.get("results")).getJSONObject(0)
-                                    .getJSONObject("geometry").getJSONObject("location")
-                                    .getDouble("lat");
-
-                            if (D) {Log.d(TAG, "lat: " + lat + " lng: " + lng); }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                    }
-                });
-
-        request.setRetryPolicy(
-                new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-        queue.add(request);
-    }
-
     private int getNavigationBarHeight() {
         Resources resources = getResources();
         int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
@@ -258,5 +288,26 @@ public class MainActivity extends AppCompatActivity implements IOnFragmentIntera
             return resources.getDimensionPixelSize(resourceId);
         }
         return 0;
+    }
+
+    public void onEventMainThread(final Event_Address event) {
+        if (event.getLatLng() == null) {
+            Toast.makeText(this, R.string.cant_on_map, Toast.LENGTH_SHORT).show();
+        } else {
+            mapFragment.startAnimation(AnimationUtils.loadAnimation(this, R.anim.controller_slide_in));
+            findViewById(R.id.map).setVisibility(View.VISIBLE);
+            findViewById(R.id.fab).setVisibility(View.VISIBLE);
+            map.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+                    googleMap.getUiSettings().setMapToolbarEnabled(false);
+                    googleMap.addMarker(
+                            new MarkerOptions()
+                                    .position(event.getLatLng())
+                                    .title(event.getLocation()));
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(event.getLatLng(), 17));
+                }
+            });
+        }
     }
 }
